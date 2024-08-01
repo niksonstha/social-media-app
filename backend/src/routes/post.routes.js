@@ -16,6 +16,6 @@ const upload = multer({ storage });
 
 const router = express.Router();
 
-router.post("/createPost", upload.single("postImage"), createPost);
+router.post("/createPost", upload.single("image"), createPost);
 
 export default router;
