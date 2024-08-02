@@ -4,7 +4,7 @@ import { FiSearch } from "react-icons/fi";
 import User from "../User/User";
 import { useEffect, useState } from "react";
 import { NavLink } from "react-router-dom";
-import { getProfilePicture } from "../../api/user";
+import { getProfileDetail } from "../../api/user";
 import Cookies from "js-cookie";
 import { jwtDecode } from "jwt-decode";
 
@@ -19,8 +19,8 @@ const Navbar = () => {
   }
 
   const getProfileImage = async () => {
-    let res = await getProfilePicture(profile_info._id);
-    setprofilePicture(res.data);
+    let res = await getProfileDetail(profile_info._id);
+    setprofilePicture(res.data.profilePicture);
   };
 
   useEffect(() => {

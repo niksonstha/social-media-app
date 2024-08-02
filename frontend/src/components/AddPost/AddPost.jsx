@@ -1,11 +1,9 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { Box, Image, Text } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
-import { getProfilePicture } from "../../api/user";
-import Cookies from "js-cookie";
-import { jwtDecode } from "jwt-decode";
+import { getProfileDetail } from "../../api/user";
 import { RiGalleryFill } from "react-icons/ri";
-import { NavLink } from "react-router-dom";
+import { NavLink, useLocation } from "react-router-dom";
 import PostUploadModal from "../PostUploadModal/PostUploadModal";
 import Backdrop from "../Backdrop/Backdrop";
 
@@ -13,15 +11,11 @@ const AddPost = () => {
   const [profilePicture, setprofilePicture] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const token = Cookies.get("uid");
-  let profile_info = {};
-  if (token) {
-    profile_info = jwtDecode(token);
-  }
+  const userId = useLocation();
 
   const getProfileImage = async () => {
-    let res = await getProfilePicture(profile_info._id);
-    setprofilePicture(res.data);
+    let res = await getProfileDetail(userId.pathname.split("/")[2]);
+    setprofilePicture(res.data.profilePicture);
   };
 
   useEffect(() => {

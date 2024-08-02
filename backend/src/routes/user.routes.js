@@ -1,7 +1,7 @@
 import express from "express";
 import {
   createUser,
-  getProfilePicture,
+  getProfileDetail,
   loginUser,
   updateProfile,
 } from "../controllers/user.controller.js";
@@ -24,6 +24,6 @@ const router = express.Router();
 router.post("/registerUser", createUser);
 router.post("/loginUser", loginUser);
 router.post("/updateProfile", upload.single("profileImage"), updateProfile);
-router.get("/getProfilePicture/:id", getProfilePicture);
+router.get("/getProfileDetail/:id", getProfileDetail);
 
 export default router;

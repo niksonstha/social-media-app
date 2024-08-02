@@ -48,9 +48,9 @@ export const updateProfile = async (id, name, email, profileImage) => {
     console.log(error);
   }
 };
-export const getProfilePicture = async (id) => {
+export const getProfileDetail = async (id) => {
   try {
-    const response = await instance.get(`/user/getProfilePicture/${id}`);
+    const response = await instance.get(`/user/getProfileDetail/${id}`);
     return response;
   } catch (error) {
     console.log(error);

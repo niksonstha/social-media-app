@@ -41,7 +41,6 @@ const ProfileModal = ({ name, email }) => {
   if (userId.pathname.split("/")[2] == profile_info._id) {
     checkCurrentUser = true;
   }
-  console.log(checkCurrentUser);
 
   const handleSave = async () => {
     await updateProfile(

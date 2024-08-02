@@ -104,14 +104,14 @@ export const updateProfile = async (req, res) => {
   }
 };
 
-export const getProfilePicture = async (req, res) => {
+export const getProfileDetail = async (req, res) => {
   const { id } = req.params;
   try {
     const user = await User.findById(id);
     if (!user) {
       return res.status(404).json({ error: "User not found" });
     } else {
-      res.json(user.profilePicture);
+      res.json(user);
     }
   } catch (error) {
     console.log(error);
