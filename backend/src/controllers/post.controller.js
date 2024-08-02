@@ -30,6 +30,7 @@ export const createPost = async (req, res) => {
     const post = await Post.create({
       caption: req.body.caption,
       image: cloudImagePath,
+      userId: req.body.id,
     });
 
     res.status(200).json({
@@ -41,5 +42,17 @@ export const createPost = async (req, res) => {
     res.status(500).json({
       message: "Internal server error",
     });
+  }
+};
+
+export const getPost = async (req, res) => {
+  try {
+    const post = await Post.find({ userId: req.params.id }).populate("userId");
+    res.status(201).json({
+      success: true,
+      data: post,
+    });
+  } catch (error) {
+    console.log(error);
   }
 };

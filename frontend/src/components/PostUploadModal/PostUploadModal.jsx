@@ -3,11 +3,19 @@ import { Box, Heading, Textarea, Button, Icon, Image } from "@chakra-ui/react";
 import { useState } from "react";
 import { FiUpload, FiTrash2 } from "react-icons/fi";
 import { createPost } from "../../api/post";
+import Cookies from "js-cookie";
+import { jwtDecode } from "jwt-decode";
 
 const PostUploadModal = ({ setIsModalOpen }) => {
   const [selectedImage, setSelectedImage] = useState(null);
   const [selectedImageFile, setSelectedImageFile] = useState(null);
   const [caption, setCaption] = useState("");
+
+  const token = Cookies.get("uid");
+  let profile_info = {};
+  if (token) {
+    profile_info = jwtDecode(token);
+  }
 
   const handleImageDisplay = (event) => {
     const file = event.target.files[0];
@@ -23,7 +31,7 @@ const PostUploadModal = ({ setIsModalOpen }) => {
   };
 
   const uploadImage = async () => {
-    let data = await createPost(caption, selectedImageFile);
+    let data = await createPost(caption, selectedImageFile, profile_info._id);
     console.log(data);
   };
 
@@ -40,7 +48,7 @@ const PostUploadModal = ({ setIsModalOpen }) => {
       zIndex={2}
       userSelect={"none"}
       style={{
-        background: "rgba(255, 255, 255, 0.5)",
+        background: "rgba(255, 255, 255, 0.7)",
         boxShadow: "0 4px 30px rgba(0, 0, 0, 0.3)",
         backdropFilter: "blur(2px)",
         border: "1px solid rgba(255, 255, 255, 0.3)",

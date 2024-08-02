@@ -1,5 +1,5 @@
 import express from "express";
-import { createPost } from "../controllers/post.controller.js";
+import { createPost, getPost } from "../controllers/post.controller.js";
 import multer from "multer";
 
 const storage = multer.diskStorage({
@@ -17,5 +17,6 @@ const upload = multer({ storage });
 const router = express.Router();
 
 router.post("/createPost", upload.single("image"), createPost);
+router.get("/getPost/:id", getPost);
 
 export default router;
