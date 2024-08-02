@@ -1,24 +1,20 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { Box, Image, Text, Spinner } from "@chakra-ui/react";
 import { useContext, useEffect, useState } from "react";
 import { PostsContext } from "../../store/PostsContext";
-import Cookies from "js-cookie";
-import { jwtDecode } from "jwt-decode";
 import { getPost } from "../../api/post";
+import { useLocation } from "react-router-dom";
 
 const UserPost = () => {
   const { posts, setPosts } = useContext(PostsContext);
-  const [loading, setLoading] = useState(true); // Add loading state
+  const [loading, setLoading] = useState(true);
 
-  const token = Cookies.get("uid");
-  let profile_info = {};
-  if (token) {
-    profile_info = jwtDecode(token);
-  }
+  const userId = useLocation();
 
   const getUserPost = async () => {
     setLoading(true); // Set loading to true before fetching data
     try {
-      const data = await getPost(profile_info._id);
+      const data = await getPost(userId.pathname.split("/")[2]);
       setPosts(data.data.data);
     } catch (error) {
       console.error("Failed to fetch posts", error);

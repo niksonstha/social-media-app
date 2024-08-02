@@ -17,6 +17,7 @@ import { useRef, useState } from "react";
 import { updateProfile } from "../../api/user";
 import Cookies from "js-cookie";
 import { jwtDecode } from "jwt-decode";
+import { useLocation } from "react-router-dom";
 
 const ProfileModal = ({ name, email }) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -34,6 +35,14 @@ const ProfileModal = ({ name, email }) => {
     profile_info = jwtDecode(token);
   }
 
+  const userId = useLocation();
+  let checkCurrentUser = false;
+
+  if (userId.pathname.split("/")[2] == profile_info._id) {
+    checkCurrentUser = true;
+  }
+  console.log(checkCurrentUser);
+
   const handleSave = async () => {
     await updateProfile(
       profile_info._id,
@@ -47,9 +56,13 @@ const ProfileModal = ({ name, email }) => {
 
   return (
     <div>
-      <Button onClick={onOpen} colorScheme="pink">
-        Edit Profile
-      </Button>
+      {checkCurrentUser ? (
+        <Button onClick={onOpen} colorScheme="pink">
+          Edit Profile
+        </Button>
+      ) : (
+        <Button colorScheme="blue">Add Friend</Button>
+      )}
 
       <Modal
         initialFocusRef={initialRef}

@@ -20,7 +20,7 @@ function App() {
 
         <Route element={<ProtectedRoute />}>
           <Route path="/" element={<HomePage />} />
-          <Route path="/profile" element={<ProfilePage />} />
+          <Route path="/profile/:id" element={<ProfilePage />} />
         </Route>
       </Routes>
     </Box>

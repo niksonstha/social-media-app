@@ -3,11 +3,17 @@ import { Box, Text } from "@chakra-ui/react";
 import { NavLink, useNavigate } from "react-router-dom";
 import "./User.css";
 import Cookies from "js-cookie";
+import { jwtDecode } from "jwt-decode";
 import { IoLogOutSharp } from "react-icons/io5";
 import { FaUserCircle } from "react-icons/fa";
 
 const User = ({ setProfileToggle }) => {
   const navigate = useNavigate();
+  const token = Cookies.get("uid");
+  let profile_info = {};
+  if (token) {
+    profile_info = jwtDecode(token);
+  }
   const logoutHandler = () => {
     Cookies.remove("uid");
     navigate("/login");
@@ -21,7 +27,7 @@ const User = ({ setProfileToggle }) => {
       letterSpacing={2}
       fontWeight={"bold"}
     >
-      <NavLink to={"/profile"}>
+      <NavLink to={`/profile/${profile_info._id}`}>
         <Box
           _hover={{ bgColor: "rgb(255, 239, 239, 0.8)" }}
           padding={2}
