@@ -1,15 +1,17 @@
 /* eslint-disable react/prop-types */
 import { Box, Heading, Textarea, Button, Icon, Image } from "@chakra-ui/react";
-import { useState } from "react";
+import { useContext, useState } from "react";
 import { FiUpload, FiTrash2 } from "react-icons/fi";
 import { createPost } from "../../api/post";
 import Cookies from "js-cookie";
 import { jwtDecode } from "jwt-decode";
+import { PostsContext } from "../../store/PostsContext";
 
 const PostUploadModal = ({ setIsModalOpen }) => {
   const [selectedImage, setSelectedImage] = useState(null);
   const [selectedImageFile, setSelectedImageFile] = useState(null);
   const [caption, setCaption] = useState("");
+  const { addPost } = useContext(PostsContext);
 
   const token = Cookies.get("uid");
   let profile_info = {};
@@ -32,7 +34,7 @@ const PostUploadModal = ({ setIsModalOpen }) => {
 
   const uploadImage = async () => {
     let data = await createPost(caption, selectedImageFile, profile_info._id);
-    console.log(data);
+    addPost(data.data.getPostDetail);
   };
 
   // Check if both caption and image are provided

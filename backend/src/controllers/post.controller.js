@@ -33,9 +33,16 @@ export const createPost = async (req, res) => {
       userId: req.body.id,
     });
 
+    const objectId = post._id;
+    const objectIdString = objectId.toString();
+
+    const getPostDetail = await Post.findById(objectIdString).populate(
+      "userId"
+    );
+
     res.status(200).json({
       message: "Post created successfully",
-      post,
+      getPostDetail,
     });
   } catch (error) {
     console.log(error);
@@ -47,7 +54,9 @@ export const createPost = async (req, res) => {
 
 export const getPost = async (req, res) => {
   try {
-    const post = await Post.find({ userId: req.params.id }).populate("userId");
+    const post = await Post.find({ userId: req.params.id })
+      .populate("userId")
+      .sort({ createdAt: -1 });
     res.status(201).json({
       success: true,
       data: post,
