@@ -13,11 +13,12 @@ import {
   FormLabel,
   Input,
 } from "@chakra-ui/react";
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import { updateProfile } from "../../api/user";
 import Cookies from "js-cookie";
 import { jwtDecode } from "jwt-decode";
 import { useLocation } from "react-router-dom";
+import { sendFriendRequest, getFriendDetail } from "../../api/friend";
 
 const ProfileModal = ({ name, email }) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -28,6 +29,7 @@ const ProfileModal = ({ name, email }) => {
   const [fullName, setFullName] = useState(name);
   const [emailAddress, setEmailAddress] = useState(email);
   const [profilePicture, setProfilePicture] = useState(null);
+  const [friendRequestStatus, setFriendRequestStatus] = useState(null);
 
   const token = Cookies.get("uid");
   let profile_info = {};
@@ -36,11 +38,23 @@ const ProfileModal = ({ name, email }) => {
   }
 
   const userId = useLocation();
+  const profileId = userId.pathname.split("/")[2];
   let checkCurrentUser = false;
 
-  if (userId.pathname.split("/")[2] == profile_info._id) {
+  if (profileId === profile_info._id) {
     checkCurrentUser = true;
   }
+
+  const fetchFriendRequestStatus = async () => {
+    const data = await getFriendDetail(profile_info._id, profileId);
+    setFriendRequestStatus(data.data.data.status || null);
+  };
+
+  const sendRequest = async () => {
+    const data = await sendFriendRequest(profile_info._id, profileId);
+    setFriendRequestStatus(data.data[0]?.status);
+    fetchFriendRequestStatus();
+  };
 
   const handleSave = async () => {
     await updateProfile(
@@ -49,9 +63,14 @@ const ProfileModal = ({ name, email }) => {
       emailAddress,
       profilePicture
     );
-
     onClose();
   };
+
+  useEffect(() => {
+    if (!checkCurrentUser) {
+      fetchFriendRequestStatus();
+    }
+  }, [checkCurrentUser]);
 
   return (
     <div>
@@ -60,7 +79,25 @@ const ProfileModal = ({ name, email }) => {
           Edit Profile
         </Button>
       ) : (
-        <Button colorScheme="blue">Add Friend</Button>
+        <Button
+          colorScheme="blue"
+          onClick={sendRequest}
+          isDisabled={
+            friendRequestStatus === "pending" ||
+            friendRequestStatus === "accepted"
+          }
+        >
+          {(() => {
+            switch (friendRequestStatus) {
+              case "pending":
+                return "Request Sent";
+              case "accepted":
+                return "Friends";
+              default:
+                return "Add Friend";
+            }
+          })()}
+        </Button>
       )}
 
       <Modal
