@@ -117,3 +117,29 @@ export const getProfileDetail = async (req, res) => {
     console.log(error);
   }
 };
+
+// Get users based on search query
+export const getUsersSearch = async (req, res) => {
+  const { fullname } = req.query;
+
+  try {
+    // Use a case-insensitive regex search to match any part of the fullname
+    const users = await User.find({
+      fullname: { $regex: fullname, $options: "i" },
+    });
+
+    // Return a 404 status if no users are found
+    if (users.length === 0) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    // Respond with the found users
+    return res.json(users);
+  } catch (error) {
+    // Log any errors that occur
+    console.error(`Error during search: ${error.message}`);
+
+    // Respond with a 500 status and error message
+    return res.status(500).json({ error: "Internal server error" });
+  }
+};

@@ -2,6 +2,7 @@ import express from "express";
 import {
   createUser,
   getProfileDetail,
+  getUsersSearch,
   loginUser,
   updateProfile,
 } from "../controllers/user.controller.js";
@@ -25,5 +26,6 @@ router.post("/registerUser", createUser);
 router.post("/loginUser", loginUser);
 router.post("/updateProfile", upload.single("profileImage"), updateProfile);
 router.get("/getProfileDetail/:id", getProfileDetail);
+router.get("/getUsersSearch", getUsersSearch);
 
 export default router;
