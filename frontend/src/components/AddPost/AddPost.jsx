@@ -20,7 +20,7 @@ const AddPost = () => {
 
   useEffect(() => {
     getProfileImage();
-  }, []);
+  }, [userId]);
   return (
     <Box
       bgColor={"#FFEFEF"}

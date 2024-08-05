@@ -25,7 +25,7 @@ const ProfilePhoto = () => {
 
   useEffect(() => {
     getProfileImage();
-  }, []);
+  }, [userId]);
 
   return (
     <Box
