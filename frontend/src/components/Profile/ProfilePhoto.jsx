@@ -8,7 +8,7 @@ import { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 
 const ProfilePhoto = () => {
-  const [profilePicture, setprofilePicture] = useState("");
+  const [profileDetail, setprofileDetail] = useState(null);
   const userId = useLocation();
   const token = Cookies.get("uid");
 
@@ -19,7 +19,8 @@ const ProfilePhoto = () => {
 
   const getProfileImage = async () => {
     let res = await getProfileDetail(userId.pathname.split("/")[2]);
-    setprofilePicture(res.data.profilePicture);
+
+    setprofileDetail(res.data);
   };
 
   useEffect(() => {
@@ -37,7 +38,11 @@ const ProfilePhoto = () => {
     >
       <Box display={"flex"} alignItems={"center"} gap={3}>
         <Image
-          src={profilePicture ? profilePicture : "/default_profile.jpg"}
+          src={
+            profileDetail
+              ? profileDetail?.profilePicture
+              : "/default_profile.jpg"
+          }
           height={"150px"}
           width={"150px"}
           rounded={"50%"}
@@ -45,7 +50,7 @@ const ProfilePhoto = () => {
         />
         <Box>
           <Text fontSize={"x-large"} fontWeight={"bold"}>
-            {profile_info.fullname}
+            {profileDetail?.fullname}
           </Text>
           <Text>1.2K friends</Text>
         </Box>

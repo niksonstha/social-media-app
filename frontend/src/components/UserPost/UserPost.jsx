@@ -56,9 +56,7 @@ const UserPost = () => {
               />
               <Box display={"flex"} flexDir={"column"}>
                 <Text>{post?.userId.fullname}</Text>
-                <Text fontSize={"0.7rem"}>
-                  {formatDate(post?.userId.createdAt)}
-                </Text>
+                <Text fontSize={"0.7rem"}>{formatDate(post?.createdAt)}</Text>
               </Box>
             </Box>
             <Box mt={3}>

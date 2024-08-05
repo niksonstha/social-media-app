@@ -3,19 +3,38 @@ import { User } from "../models/user.model.js";
 
 export const getFriendDetail = async (req, res) => {
   try {
-    const { senderId, receiverId } = req.query;
+    const { currentUser, checkingUser } = req.query;
 
+    // Find friend request in both directions
     const friendRequest = await FriendRequest.findOne({
-      senderId,
-      receiverId,
+      $or: [
+        { senderId: currentUser, receiverId: checkingUser },
+        { senderId: checkingUser, receiverId: currentUser },
+      ],
     });
+
+    if (!friendRequest) {
+      return res.status(404).json({
+        status: "error",
+        message: "No friend request found between the users",
+      });
+    }
+
+    let isSender = false;
+    let isReceiver = false;
+    if (currentUser === friendRequest.senderId.toString()) {
+      isSender = true;
+    } else if (currentUser === friendRequest.receiverId.toString()) {
+      isReceiver = true;
+    }
 
     res.status(200).json({
       status: "success",
       data: friendRequest,
+      isSender,
+      isReceiver,
     });
   } catch (error) {
-    console.log(error);
     res.status(500).json({
       status: "error",
       message: error.message,

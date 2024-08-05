@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable react/prop-types */
 import {
   Modal,
@@ -12,6 +13,7 @@ import {
   FormControl,
   FormLabel,
   Input,
+  Box,
 } from "@chakra-ui/react";
 import { useRef, useState, useEffect } from "react";
 import { updateProfile } from "../../api/user";
@@ -30,6 +32,8 @@ const ProfileModal = ({ name, email }) => {
   const [emailAddress, setEmailAddress] = useState(email);
   const [profilePicture, setProfilePicture] = useState(null);
   const [friendRequestStatus, setFriendRequestStatus] = useState(null);
+  const [isSender, setIsSender] = useState(false);
+  const [isReceiver, setIsReceiver] = useState(false);
 
   const token = Cookies.get("uid");
   let profile_info = {};
@@ -46,8 +50,14 @@ const ProfileModal = ({ name, email }) => {
   }
 
   const fetchFriendRequestStatus = async () => {
-    const data = await getFriendDetail(profile_info._id, profileId);
-    setFriendRequestStatus(data.data.data.status || null);
+    try {
+      const data = await getFriendDetail(profile_info._id, profileId);
+      setFriendRequestStatus(data.data.data.status || null);
+      setIsSender(data.data.isSender);
+      setIsReceiver(data.data.isReceiver);
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   const sendRequest = async () => {
@@ -78,7 +88,7 @@ const ProfileModal = ({ name, email }) => {
         <Button onClick={onOpen} colorScheme="pink">
           Edit Profile
         </Button>
-      ) : (
+      ) : !isSender && !isReceiver ? (
         <Button
           colorScheme="blue"
           onClick={sendRequest}
@@ -87,17 +97,19 @@ const ProfileModal = ({ name, email }) => {
             friendRequestStatus === "accepted"
           }
         >
-          {(() => {
-            switch (friendRequestStatus) {
-              case "pending":
-                return "Request Sent";
-              case "accepted":
-                return "Friends";
-              default:
-                return "Add Friend";
-            }
-          })()}
+          Add Friend
         </Button>
+      ) : (
+        <Box>
+          {isSender ? (
+            <Button isDisabled>Friend request sent</Button>
+          ) : (
+            <Box display={"flex"} gap={3}>
+              <Button colorScheme="blue">Accept</Button>
+              <Button colorScheme="red">Decline</Button>
+            </Box>
+          )}
+        </Box>
       )}
 
       <Modal

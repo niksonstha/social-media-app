@@ -13,12 +13,12 @@ export const sendFriendRequest = async (senderId, receiverId) => {
   }
 };
 
-export const getFriendDetail = async (senderId, receiverId) => {
+export const getFriendDetail = async (currentUser, checkingUser) => {
   try {
     let res = await instance.get("/friendRequest/getFriendDetail", {
       params: {
-        senderId,
-        receiverId,
+        currentUser,
+        checkingUser,
       },
     });
     return res;
