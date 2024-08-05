@@ -73,3 +73,37 @@ export const sendFriendRequest = async (req, res) => {
     console.log(error);
   }
 };
+
+export const acceptFriendRequest = async (req, res) => {
+  const { acceptedBy, acceptedTo } = req.body.params;
+
+  if (!acceptedBy || !acceptedTo) {
+    return res
+      .status(400)
+      .json({ error: "acceptedBy and acceptedTo are required parameters." });
+  }
+
+  try {
+    const friendRequest = await FriendRequest.findOneAndUpdate(
+      {
+        senderId: acceptedTo,
+        receiverId: acceptedBy,
+      },
+      {
+        status: "accepted",
+      },
+      {
+        new: true, // This option returns the updated document
+      }
+    );
+
+    if (!friendRequest) {
+      return res.status(404).json({ error: "Friend request not found." });
+    }
+
+    res.status(200).json({ friendRequest });
+  } catch (error) {
+    console.error("Error accepting friend request:", error);
+    res.status(500).json({ error: "Internal server error." });
+  }
+};

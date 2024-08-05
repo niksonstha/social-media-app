@@ -20,7 +20,11 @@ import { updateProfile } from "../../api/user";
 import Cookies from "js-cookie";
 import { jwtDecode } from "jwt-decode";
 import { useLocation } from "react-router-dom";
-import { sendFriendRequest, getFriendDetail } from "../../api/friend";
+import {
+  sendFriendRequest,
+  getFriendDetail,
+  acceptFriendRequest,
+} from "../../api/friend";
 
 const ProfileModal = ({ name, email }) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -56,7 +60,10 @@ const ProfileModal = ({ name, email }) => {
       setIsSender(data.data.isSender);
       setIsReceiver(data.data.isReceiver);
     } catch (error) {
-      console.log(error);
+      console.log("entered error");
+      setIsSender(false);
+      setIsReceiver(false);
+      setFriendRequestStatus(null);
     }
   };
 
@@ -76,11 +83,16 @@ const ProfileModal = ({ name, email }) => {
     onClose();
   };
 
+  const accept = async () => {
+    const res = await acceptFriendRequest(profile_info._id, profileId);
+    setFriendRequestStatus(res.data.friendRequest.status);
+  };
+
   useEffect(() => {
     if (!checkCurrentUser) {
       fetchFriendRequestStatus();
     }
-  }, [checkCurrentUser]);
+  }, [checkCurrentUser, userId]);
 
   return (
     <div>
@@ -92,20 +104,21 @@ const ProfileModal = ({ name, email }) => {
         <Button
           colorScheme="blue"
           onClick={sendRequest}
-          isDisabled={
-            friendRequestStatus === "pending" ||
-            friendRequestStatus === "accepted"
-          }
+          isDisabled={friendRequestStatus === "pending" || null}
         >
           Add Friend
         </Button>
       ) : (
         <Box>
-          {isSender ? (
+          {friendRequestStatus === "accepted" ? (
+            <Button>Friends</Button>
+          ) : isSender ? (
             <Button isDisabled>Friend request sent</Button>
           ) : (
             <Box display={"flex"} gap={3}>
-              <Button colorScheme="blue">Accept</Button>
+              <Button colorScheme="blue" onClick={accept}>
+                Accept
+              </Button>
               <Button colorScheme="red">Decline</Button>
             </Box>
           )}

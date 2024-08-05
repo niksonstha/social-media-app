@@ -26,3 +26,16 @@ export const getFriendDetail = async (currentUser, checkingUser) => {
     console.log(error);
   }
 };
+export const acceptFriendRequest = async (acceptedBy, acceptedTo) => {
+  try {
+    let res = await instance.patch("/friendRequest/acceptFriendRequest", {
+      params: {
+        acceptedBy,
+        acceptedTo,
+      },
+    });
+    return res;
+  } catch (error) {
+    console.log(error);
+  }
+};
