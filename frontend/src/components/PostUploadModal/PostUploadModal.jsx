@@ -1,5 +1,13 @@
 /* eslint-disable react/prop-types */
-import { Box, Heading, Textarea, Button, Icon, Image } from "@chakra-ui/react";
+import {
+  Box,
+  Heading,
+  Textarea,
+  Button,
+  Icon,
+  Image,
+  Spinner,
+} from "@chakra-ui/react";
 import { useContext, useState } from "react";
 import { FiUpload, FiTrash2 } from "react-icons/fi";
 import { createPost } from "../../api/post";
@@ -11,6 +19,7 @@ const PostUploadModal = ({ setIsModalOpen }) => {
   const [selectedImage, setSelectedImage] = useState(null);
   const [selectedImageFile, setSelectedImageFile] = useState(null);
   const [caption, setCaption] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
   const { addPost } = useContext(PostsContext);
 
   const token = Cookies.get("uid");
@@ -29,15 +38,22 @@ const PostUploadModal = ({ setIsModalOpen }) => {
 
   const handleRemoveImage = () => {
     setSelectedImage(null);
-    setSelectedImageFile(null); // Clear the file object as well
+    setSelectedImageFile(null);
   };
 
   const uploadImage = async () => {
-    let data = await createPost(caption, selectedImageFile, profile_info._id);
-    addPost(data.data.getPostDetail);
+    setIsLoading(true);
+    try {
+      let data = await createPost(caption, selectedImageFile, profile_info._id);
+      addPost(data.data.getPostDetail);
+      setIsModalOpen(false);
+    } catch (error) {
+      console.error("Failed to upload post", error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  // Check if both caption and image are provided
   const isPostButtonDisabled = !caption.trim() || !selectedImageFile;
 
   return (
@@ -61,7 +77,6 @@ const PostUploadModal = ({ setIsModalOpen }) => {
         Create a new post
       </Heading>
       <Box borderBottom={"1px solid rgba(255, 255, 255, 0.5)"} />
-      {/* Caption */}
       <Box mt={5}>
         <Textarea
           placeholder="What's on your mind?"
@@ -79,7 +94,6 @@ const PostUploadModal = ({ setIsModalOpen }) => {
           onChange={(e) => setCaption(e.target.value)}
         />
       </Box>
-      {/* Display image */}
       {selectedImage && (
         <Box mt={5} position="relative">
           <Image
@@ -101,7 +115,6 @@ const PostUploadModal = ({ setIsModalOpen }) => {
           </Button>
         </Box>
       )}
-      {/* Upload photo */}
       <Box
         mt={5}
         display="flex"
@@ -130,13 +143,10 @@ const PostUploadModal = ({ setIsModalOpen }) => {
           colorScheme="teal"
           variant="outline"
           cursor={"pointer"}
-          onClick={() => {
-            uploadImage();
-            setIsModalOpen(false);
-          }}
-          isDisabled={isPostButtonDisabled}
+          onClick={uploadImage}
+          isDisabled={isPostButtonDisabled || isLoading}
         >
-          Post
+          {isLoading ? <Spinner size="sm" /> : "Post"}
         </Button>
       </Box>
     </Box>
