@@ -48,9 +48,23 @@ export const updateProfile = async (id, name, email, profileImage) => {
     console.log(error);
   }
 };
+
 export const getProfileDetail = async (id) => {
   try {
     const response = await instance.get(`/user/getProfileDetail/${id}`);
+    return response;
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+export const getUsersSearch = async (fullname) => {
+  try {
+    const response = await instance.get(`/user/getUsersSearch`, {
+      params: {
+        fullname,
+      },
+    });
     return response;
   } catch (error) {
     console.log(error);

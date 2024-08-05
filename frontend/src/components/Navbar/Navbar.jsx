@@ -3,15 +3,18 @@ import "./Navbar.css";
 import { FiSearch } from "react-icons/fi";
 import User from "../User/User";
 import { useEffect, useState } from "react";
-import { NavLink } from "react-router-dom";
-import { getProfileDetail } from "../../api/user";
+import { NavLink, useNavigate } from "react-router-dom";
+import { getProfileDetail, getUsersSearch } from "../../api/user";
 import Cookies from "js-cookie";
 import { jwtDecode } from "jwt-decode";
 
 const Navbar = () => {
   const [profileToggle, setProfileToggle] = useState(false);
-  const [profilePicture, setprofilePicture] = useState("");
+  const [profilePicture, setProfilePicture] = useState("");
+  const [searchUser, setSearchUser] = useState("");
+  const [searchResults, setSearchResults] = useState([]);
 
+  const navigate = useNavigate();
   const token = Cookies.get("uid");
   let profile_info = {};
   if (token) {
@@ -20,7 +23,22 @@ const Navbar = () => {
 
   const getProfileImage = async () => {
     let res = await getProfileDetail(profile_info._id);
-    setprofilePicture(res.data.profilePicture);
+    setProfilePicture(res.data.profilePicture);
+  };
+
+  const fetchSearchUser = async () => {
+    if (searchUser.trim() === "") {
+      setSearchResults([]);
+      return;
+    }
+    let res = await getUsersSearch(searchUser);
+    setSearchResults(res.data);
+  };
+
+  const handleKeyPress = (e) => {
+    if (e.key === "Enter") {
+      fetchSearchUser();
+    }
   };
 
   useEffect(() => {
@@ -60,10 +78,41 @@ const Navbar = () => {
           type="text"
           placeholder="Search for friends"
           className="search__bar"
+          value={searchUser}
+          onChange={(e) => setSearchUser(e.target.value)}
+          onKeyUp={handleKeyPress}
         />
         <Box pos={"absolute"} top={"11px"} left={2}>
           <FiSearch fontSize={20} />
         </Box>
+        {/* Search results */}
+        {searchResults.length > 0 && (
+          <Box
+            pos={"absolute"}
+            width={"100%"}
+            backgroundColor={"white"}
+            boxShadow={"md"}
+            zIndex={1}
+            borderRadius={"md"}
+            mt={2}
+          >
+            {searchResults.map((user) => (
+              <Box
+                key={user._id}
+                padding={2}
+                borderBottom={"1px solid #ddd"}
+                _hover={{ backgroundColor: "#f0f0f0", cursor: "pointer" }}
+                onClick={() => {
+                  setSearchUser("");
+                  setSearchResults([]);
+                  navigate(`/profile/${user._id}`);
+                }}
+              >
+                <Text>{user.fullname}</Text>
+              </Box>
+            ))}
+          </Box>
+        )}
       </Box>
       {/* profile */}
       <Box cursor={"pointer"} pos={"relative"}>
