@@ -14,7 +14,7 @@ export const getFriendDetail = async (req, res) => {
     });
 
     if (!friendRequest) {
-      return res.status(404).json({
+      return res.status(200).json({
         status: "error",
         message: "No friend request found between the users",
       });
@@ -104,6 +104,34 @@ export const acceptFriendRequest = async (req, res) => {
     res.status(200).json({ friendRequest });
   } catch (error) {
     console.error("Error accepting friend request:", error);
+    res.status(500).json({ error: "Internal server error." });
+  }
+};
+
+export const declineFriendRequest = async (req, res) => {
+  const { declinedBy, declinedTo } = req.query;
+  if (!declinedBy || !declinedTo) {
+    return res
+      .status(400)
+      .json({ error: "declinedBy and declinedTo are required parameters." });
+  }
+
+  try {
+    const friendRequest = await FriendRequest.findOneAndDelete({
+      senderId: declinedTo,
+      receiverId: declinedBy,
+    });
+
+    if (!friendRequest) {
+      return res.status(404).json({ error: "Friend request not found." });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Friend request declined successfully.",
+    });
+  } catch (error) {
+    console.error(error);
     res.status(500).json({ error: "Internal server error." });
   }
 };

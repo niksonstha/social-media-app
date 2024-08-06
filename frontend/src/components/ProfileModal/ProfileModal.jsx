@@ -24,6 +24,7 @@ import {
   sendFriendRequest,
   getFriendDetail,
   acceptFriendRequest,
+  declineFriendRequest,
 } from "../../api/friend";
 
 const ProfileModal = ({ name, email }) => {
@@ -60,7 +61,6 @@ const ProfileModal = ({ name, email }) => {
       setIsSender(data.data.isSender);
       setIsReceiver(data.data.isReceiver);
     } catch (error) {
-      console.log("entered error");
       setIsSender(false);
       setIsReceiver(false);
       setFriendRequestStatus(null);
@@ -83,9 +83,15 @@ const ProfileModal = ({ name, email }) => {
     onClose();
   };
 
-  const accept = async () => {
+  const handleAcceptFriend = async () => {
     const res = await acceptFriendRequest(profile_info._id, profileId);
     setFriendRequestStatus(res.data.friendRequest.status);
+  };
+
+  const handleDeleteFriend = async () => {
+    let res = await declineFriendRequest(profile_info._id, profileId);
+    console.log(res);
+    fetchFriendRequestStatus();
   };
 
   useEffect(() => {
@@ -116,10 +122,12 @@ const ProfileModal = ({ name, email }) => {
             <Button isDisabled>Friend request sent</Button>
           ) : (
             <Box display={"flex"} gap={3}>
-              <Button colorScheme="blue" onClick={accept}>
+              <Button colorScheme="blue" onClick={handleAcceptFriend}>
                 Accept
               </Button>
-              <Button colorScheme="red">Decline</Button>
+              <Button colorScheme="red" onClick={handleDeleteFriend}>
+                Decline
+              </Button>
             </Box>
           )}
         </Box>
