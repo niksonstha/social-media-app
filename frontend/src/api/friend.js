@@ -39,10 +39,14 @@ export const acceptFriendRequest = async (acceptedBy, acceptedTo) => {
     console.log(error);
   }
 };
-export const declineFriendRequest = async (declinedBy, declinedTo) => {
+export const declineFriendRequest = async (
+  declinedBy,
+  declinedTo,
+  actionType
+) => {
   try {
     let res = await instance.delete(
-      `/friendRequest/declineFriendRequest?declinedBy=${declinedBy}&declinedTo=${declinedTo}`
+      `/friendRequest/declineFriendRequest?declinedBy=${declinedBy}&declinedTo=${declinedTo}&actionType=${actionType}`
     );
     return res;
   } catch (error) {

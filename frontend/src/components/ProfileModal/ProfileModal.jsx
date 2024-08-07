@@ -89,7 +89,21 @@ const ProfileModal = ({ name, email }) => {
   };
 
   const handleDeleteFriend = async () => {
-    let res = await declineFriendRequest(profile_info._id, profileId);
+    let res = await declineFriendRequest(
+      profile_info._id,
+      profileId,
+      "decline"
+    );
+    console.log(res);
+    fetchFriendRequestStatus();
+  };
+
+  const handleUnfriend = async () => {
+    let res = await declineFriendRequest(
+      profile_info._id,
+      profileId,
+      "unfriend"
+    );
     console.log(res);
     fetchFriendRequestStatus();
   };
@@ -117,7 +131,7 @@ const ProfileModal = ({ name, email }) => {
       ) : (
         <Box>
           {friendRequestStatus === "accepted" ? (
-            <Button>Friends</Button>
+            <Button onClick={handleUnfriend}>Friends</Button>
           ) : isSender ? (
             <Button isDisabled>Friend request sent</Button>
           ) : (

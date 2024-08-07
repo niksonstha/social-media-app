@@ -109,7 +109,8 @@ export const acceptFriendRequest = async (req, res) => {
 };
 
 export const declineFriendRequest = async (req, res) => {
-  const { declinedBy, declinedTo } = req.query;
+  const { declinedBy, declinedTo, actionType } = req.query;
+
   if (!declinedBy || !declinedTo) {
     return res
       .status(400)
@@ -117,18 +118,36 @@ export const declineFriendRequest = async (req, res) => {
   }
 
   try {
-    const friendRequest = await FriendRequest.findOneAndDelete({
-      senderId: declinedTo,
-      receiverId: declinedBy,
-    });
+    let friendRequest;
+    if (actionType === "decline") {
+      friendRequest = await FriendRequest.findOneAndDelete({
+        senderId: declinedTo,
+        receiverId: declinedBy,
+      });
+    } else if (actionType === "unfriend") {
+      friendRequest = await FriendRequest.findOneAndDelete({
+        $or: [
+          { senderId: declinedBy, receiverId: declinedTo },
+          { senderId: declinedTo, receiverId: declinedBy },
+        ],
+      });
+    }
 
     if (!friendRequest) {
-      return res.status(404).json({ error: "Friend request not found." });
+      return res.status(404).json({
+        error: `${
+          actionType === "decline" ? "Friend request" : "Friend"
+        } not found.`,
+      });
     }
 
     res.status(200).json({
       success: true,
-      message: "Friend request declined successfully.",
+      message: `${
+        actionType === "decline"
+          ? "Friend request declined"
+          : "Unfriended successfully"
+      }.`,
     });
   } catch (error) {
     console.error(error);
