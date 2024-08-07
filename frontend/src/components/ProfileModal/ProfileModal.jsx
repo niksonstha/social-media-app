@@ -14,6 +14,7 @@ import {
   FormLabel,
   Input,
   Box,
+  Text,
 } from "@chakra-ui/react";
 import { useRef, useState, useEffect } from "react";
 import { updateProfile } from "../../api/user";
@@ -29,6 +30,16 @@ import {
 
 const ProfileModal = ({ name, email }) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const {
+    isOpen: isDeclineOpen,
+    onOpen: onDeclineOpen,
+    onClose: onDeclineClose,
+  } = useDisclosure();
+  const {
+    isOpen: isUnfriendOpen,
+    onOpen: onUnfriendOpen,
+    onClose: onUnfriendClose,
+  } = useDisclosure();
 
   const initialRef = useRef(null);
   const finalRef = useRef(null);
@@ -96,6 +107,7 @@ const ProfileModal = ({ name, email }) => {
     );
     console.log(res);
     fetchFriendRequestStatus();
+    onDeclineClose();
   };
 
   const handleUnfriend = async () => {
@@ -106,6 +118,7 @@ const ProfileModal = ({ name, email }) => {
     );
     console.log(res);
     fetchFriendRequestStatus();
+    onUnfriendClose();
   };
 
   useEffect(() => {
@@ -131,7 +144,7 @@ const ProfileModal = ({ name, email }) => {
       ) : (
         <Box>
           {friendRequestStatus === "accepted" ? (
-            <Button onClick={handleUnfriend}>Friends</Button>
+            <Button onClick={onUnfriendOpen}>Friends</Button>
           ) : isSender ? (
             <Button isDisabled>Friend request sent</Button>
           ) : (
@@ -139,7 +152,7 @@ const ProfileModal = ({ name, email }) => {
               <Button colorScheme="blue" onClick={handleAcceptFriend}>
                 Accept
               </Button>
-              <Button colorScheme="red" onClick={handleDeleteFriend}>
+              <Button colorScheme="red" onClick={onDeclineOpen}>
                 Decline
               </Button>
             </Box>
@@ -192,6 +205,42 @@ const ProfileModal = ({ name, email }) => {
               Save
             </Button>
             <Button onClick={onClose}>Cancel</Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
+
+      {/* Decline Confirmation Modal */}
+      <Modal isOpen={isDeclineOpen} onClose={onDeclineClose}>
+        <ModalOverlay />
+        <ModalContent>
+          <ModalHeader>Confirm Decline</ModalHeader>
+          <ModalCloseButton />
+          <ModalBody>
+            <Text>Are you sure you want to decline this friend request?</Text>
+          </ModalBody>
+          <ModalFooter>
+            <Button colorScheme="red" mr={3} onClick={handleDeleteFriend}>
+              Decline
+            </Button>
+            <Button onClick={onDeclineClose}>Cancel</Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
+
+      {/* Unfriend Confirmation Modal */}
+      <Modal isOpen={isUnfriendOpen} onClose={onUnfriendClose}>
+        <ModalOverlay />
+        <ModalContent>
+          <ModalHeader>Confirm Unfriend</ModalHeader>
+          <ModalCloseButton />
+          <ModalBody>
+            <Text>Are you sure you want to unfriend this user?</Text>
+          </ModalBody>
+          <ModalFooter>
+            <Button colorScheme="red" mr={3} onClick={handleUnfriend}>
+              Unfriend
+            </Button>
+            <Button onClick={onUnfriendClose}>Cancel</Button>
           </ModalFooter>
         </ModalContent>
       </Modal>
