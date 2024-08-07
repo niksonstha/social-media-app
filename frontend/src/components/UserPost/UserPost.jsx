@@ -1,15 +1,38 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { Box, Image, Text, Spinner } from "@chakra-ui/react";
-import { useContext, useEffect, useState } from "react";
+import {
+  Box,
+  Image,
+  Text,
+  Spinner,
+  Button,
+  AlertDialog,
+  AlertDialogBody,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogContent,
+  AlertDialogOverlay,
+} from "@chakra-ui/react";
+import { useContext, useEffect, useState, useRef } from "react";
 import { PostsContext } from "../../store/PostsContext";
-import { getPost } from "../../api/post";
+import { deletePost, getPost } from "../../api/post";
 import { useLocation } from "react-router-dom";
+import { MdDelete } from "react-icons/md";
+import Cookies from "js-cookie";
+import { jwtDecode } from "jwt-decode";
 
 const UserPost = () => {
   const { posts, setPosts } = useContext(PostsContext);
   const [loading, setLoading] = useState(true);
+  const [isOpen, setIsOpen] = useState(false);
+  const [deletePostId, setDeletePostId] = useState(null);
+  const cancelRef = useRef();
 
   const userId = useLocation();
+  const token = Cookies.get("uid");
+  let profile_info = {};
+  if (token) {
+    profile_info = jwtDecode(token);
+  }
 
   const getUserPost = async () => {
     setLoading(true); // Set loading to true before fetching data
@@ -23,9 +46,31 @@ const UserPost = () => {
     }
   };
 
+  const handleDeletePost = async (id) => {
+    await deletePost(id);
+    getUserPost();
+  };
+
   const formatDate = (dateString) => {
     const options = { year: "numeric", month: "long", day: "numeric" };
     return new Date(dateString).toLocaleDateString(undefined, options);
+  };
+
+  const openDeleteDialog = (id) => {
+    setDeletePostId(id);
+    setIsOpen(true);
+  };
+
+  const closeDeleteDialog = () => {
+    setIsOpen(false);
+    setDeletePostId(null);
+  };
+
+  const confirmDeletePost = async () => {
+    if (deletePostId) {
+      await handleDeletePost(deletePostId);
+    }
+    closeDeleteDialog();
   };
 
   useEffect(() => {
@@ -46,18 +91,34 @@ const UserPost = () => {
       ) : (
         posts?.map((post, index) => (
           <Box key={index} bgColor={"#FFEFEF"} rounded={5} padding={5} m={2}>
-            <Box display={"flex"} gap={4} alignItems={"center"}>
-              <Image
-                src={post?.userId.profilePicture}
-                height={"50px"}
-                width={"50px"}
-                rounded={"50%"}
-                alt="post image"
-              />
-              <Box display={"flex"} flexDir={"column"}>
-                <Text>{post?.userId.fullname}</Text>
-                <Text fontSize={"0.7rem"}>{formatDate(post?.createdAt)}</Text>
+            <Box
+              display={"flex"}
+              alignItems={"center"}
+              justifyContent={"space-between"}
+            >
+              <Box display={"flex"} gap={4} alignItems={"center"}>
+                <Image
+                  src={post?.userId.profilePicture}
+                  height={"50px"}
+                  width={"50px"}
+                  rounded={"50%"}
+                  alt="post image"
+                />
+                <Box display={"flex"} flexDir={"column"}>
+                  <Text>{post?.userId.fullname}</Text>
+                  <Text fontSize={"0.7rem"}>{formatDate(post?.createdAt)}</Text>
+                </Box>
               </Box>
+              {profile_info._id === post.userId._id && (
+                <Box
+                  cursor={"pointer"}
+                  color={"red"}
+                  fontSize={"1.2rem"}
+                  onClick={() => openDeleteDialog(post._id)}
+                >
+                  <MdDelete />
+                </Box>
+              )}
             </Box>
             <Box mt={3}>
               <Text>{post?.caption}</Text>
@@ -66,6 +127,34 @@ const UserPost = () => {
           </Box>
         ))
       )}
+
+      <AlertDialog
+        isOpen={isOpen}
+        leastDestructiveRef={cancelRef}
+        onClose={closeDeleteDialog}
+      >
+        <AlertDialogOverlay>
+          <AlertDialogContent>
+            <AlertDialogHeader fontSize="lg" fontWeight="bold">
+              Delete Post
+            </AlertDialogHeader>
+
+            <AlertDialogBody>
+              Are you sure you want to delete this post? You can&apos;t undo
+              this action afterwards.
+            </AlertDialogBody>
+
+            <AlertDialogFooter>
+              <Button ref={cancelRef} onClick={closeDeleteDialog}>
+                Cancel
+              </Button>
+              <Button colorScheme="red" onClick={confirmDeletePost} ml={3}>
+                Delete
+              </Button>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialogOverlay>
+      </AlertDialog>
     </Box>
   );
 };
