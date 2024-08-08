@@ -11,16 +11,26 @@ import {
   AlertDialogHeader,
   AlertDialogContent,
   AlertDialogOverlay,
+  Input,
+  IconButton,
 } from "@chakra-ui/react";
 import { useContext, useEffect, useState, useRef } from "react";
 import { PostsContext } from "../../store/PostsContext";
-import { deletePost, getPost, getPostLike, likePost } from "../../api/post";
+import {
+  createPostComment,
+  deletePost,
+  getPost,
+  getPostComment,
+  getPostLike,
+  likePost,
+} from "../../api/post";
 import { useLocation } from "react-router-dom";
 import { MdDelete } from "react-icons/md";
 import Cookies from "js-cookie";
 import { jwtDecode } from "jwt-decode";
 import { AiFillLike } from "react-icons/ai";
 import { FaComment } from "react-icons/fa";
+import { FiSend } from "react-icons/fi";
 
 const UserPost = () => {
   const { posts, setPosts } = useContext(PostsContext);
@@ -28,6 +38,9 @@ const UserPost = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [deletePostId, setDeletePostId] = useState(null);
   const [likes, setLikes] = useState([]);
+  const [openCommentBoxId, setOpenCommentBoxId] = useState(null); // Track open comment box by post ID
+  const [comment, setComment] = useState(""); // State to hold the comment input
+  const [commentOnPost, setCommentOnPost] = useState([]);
   const cancelRef = useRef();
 
   const userId = useLocation();
@@ -100,6 +113,31 @@ const UserPost = () => {
     };
   });
 
+  // Toggle comment box visibility
+  const toggleCommentBox = (postId) => {
+    if (openCommentBoxId === postId) {
+      setOpenCommentBoxId(null); // Close if already open
+    } else {
+      setOpenCommentBoxId(postId); // Open new one
+    }
+  };
+
+  const handleCommentSubmit = async (postId) => {
+    if (comment.trim()) {
+      // Create a new comment in the backend
+      await createPostComment(profile_info._id, postId, comment);
+
+      fetchPostComment(postId);
+
+      setComment("");
+    }
+  };
+
+  const fetchPostComment = async (id) => {
+    let comments = await getPostComment(id);
+    setCommentOnPost(comments.data.data);
+  };
+
   return (
     <Box>
       {loading ? (
@@ -163,7 +201,9 @@ const UserPost = () => {
                 _hover={{
                   bgColor: "white",
                 }}
-                onClick={() => handleLike(post._id)}
+                onClick={() => {
+                  handleLike(post._id);
+                }}
               >
                 <AiFillLike />
                 <Text>Like {post.likeCount}</Text>
@@ -182,11 +222,77 @@ const UserPost = () => {
                 _hover={{
                   bgColor: "white",
                 }}
+                onClick={() => {
+                  toggleCommentBox(post._id);
+                  fetchPostComment(post._id);
+                }}
               >
                 <FaComment />
                 <Text>Comment</Text>
               </Box>
             </Box>
+            {openCommentBoxId === post._id && (
+              <Box mt={3}>
+                {commentOnPost
+                  .filter((c) => c?.postId === post._id)
+                  .map((commentItem) =>
+                    commentItem.comment.map((text, idx) => (
+                      <Box
+                        key={`${commentItem._id}-${idx}`}
+                        bgColor={"#F0EBE3"}
+                        rounded={4}
+                        mt={2}
+                        p={3}
+                        display={"flex"}
+                        alignItems={"center"}
+                        gap={3}
+                      >
+                        <Image
+                          src={commentItem.userId.profilePicture}
+                          height={"30px"}
+                          width={"30px"}
+                          rounded={"50%"}
+                          alt="user image"
+                        />
+                        <Box>
+                          <Text fontWeight={"bold"}>
+                            {commentItem.userId.fullname}
+                          </Text>
+                          <Text>{text}</Text>
+                        </Box>
+                      </Box>
+                    ))
+                  )}
+                {/* Comment Input Box */}
+                <Box
+                  bgColor={"#F0EBE3"}
+                  rounded={4}
+                  mt={3}
+                  p={3}
+                  display={"flex"}
+                  alignItems={"center"}
+                >
+                  <Input
+                    flexGrow={1}
+                    placeholder="Write a comment..."
+                    value={comment}
+                    onChange={(e) => setComment(e.target.value)}
+                    _focus={{ boxShadow: "none" }}
+                    border="none"
+                    outline="none"
+                  />
+                  <IconButton
+                    aria-label="Submit comment"
+                    icon={<FiSend />}
+                    onClick={() => {
+                      handleCommentSubmit(post._id);
+                    }}
+                    ml={2}
+                    colorScheme="blue"
+                  />
+                </Box>
+              </Box>
+            )}
           </Box>
         ))
       )}

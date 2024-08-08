@@ -36,3 +36,29 @@ export const commentOnPost = async (req, res) => {
     return res.status(500).json({ message: "Internal server error" });
   }
 };
+
+export const getCommentOfPost = async (req, res) => {
+  const { postId } = req.params;
+
+  try {
+    // Find all comments associated with the postId
+    const comments = await Comment.find({ postId }).populate(
+      "userId",
+      "fullname profilePicture"
+    );
+
+    if (!comments || comments.length === 0) {
+      return res
+        .status(404)
+        .json({ message: "No comments found for this post" });
+    }
+
+    return res.status(200).json({
+      message: "Comments retrieved successfully",
+      data: comments,
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+};
