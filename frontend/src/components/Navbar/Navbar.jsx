@@ -38,7 +38,6 @@ const Navbar = () => {
   };
 
   const fetchSearchUsers = async (searchTerm) => {
-    console.log(searchTerm);
     if (searchTerm) {
       const data = await getUsersSearch(searchTerm);
       setUserSearchResults(data.data);

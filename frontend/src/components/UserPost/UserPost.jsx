@@ -14,17 +14,20 @@ import {
 } from "@chakra-ui/react";
 import { useContext, useEffect, useState, useRef } from "react";
 import { PostsContext } from "../../store/PostsContext";
-import { deletePost, getPost } from "../../api/post";
+import { deletePost, getPost, likePost } from "../../api/post";
 import { useLocation } from "react-router-dom";
 import { MdDelete } from "react-icons/md";
 import Cookies from "js-cookie";
 import { jwtDecode } from "jwt-decode";
+import { AiFillLike } from "react-icons/ai";
+import { FaComment } from "react-icons/fa";
 
 const UserPost = () => {
   const { posts, setPosts } = useContext(PostsContext);
   const [loading, setLoading] = useState(true);
   const [isOpen, setIsOpen] = useState(false);
   const [deletePostId, setDeletePostId] = useState(null);
+  const [like, setLike] = useState();
   const cancelRef = useRef();
 
   const userId = useLocation();
@@ -71,6 +74,12 @@ const UserPost = () => {
       await handleDeletePost(deletePostId);
     }
     closeDeleteDialog();
+  };
+
+  const handleLike = async (postId) => {
+    let like = await likePost(profile_info._id, postId);
+    console.log(like.data.likeCount);
+    setLike(like.data.likeCount);
   };
 
   useEffect(() => {
@@ -123,6 +132,48 @@ const UserPost = () => {
             <Box mt={3}>
               <Text>{post?.caption}</Text>
               {post?.image && <Image src={post?.image} height={"100%"} />}
+            </Box>
+            <Box>
+              <Text>{like}</Text>
+            </Box>
+            <Box display={"flex"} mt={2} gap={2} alignContent={"center"}>
+              <Box
+                bgColor={"#F0EBE3"}
+                flexGrow={1}
+                cursor={"pointer"}
+                padding={2}
+                fontSize={"1.3rem"}
+                display={"flex"}
+                alignItems={"center"}
+                justifyContent={"center"}
+                gap={2}
+                userSelect={"none"}
+                _hover={{
+                  bgColor: "white",
+                }}
+                onClick={() => handleLike(post._id)}
+              >
+                <AiFillLike />
+                <Text>Like</Text>
+              </Box>
+              <Box
+                bgColor={"#F0EBE3"}
+                flexGrow={1}
+                cursor={"pointer"}
+                padding={2}
+                fontSize={"1.3rem"}
+                display={"flex"}
+                alignItems={"center"}
+                justifyContent={"center"}
+                gap={2}
+                userSelect={"none"}
+                _hover={{
+                  bgColor: "white",
+                }}
+              >
+                <FaComment />
+                <Text>Comment</Text>
+              </Box>
             </Box>
           </Box>
         ))

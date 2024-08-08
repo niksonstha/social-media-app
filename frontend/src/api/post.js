@@ -24,9 +24,21 @@ export const getPost = async (id) => {
     console.log(error);
   }
 };
+
 export const deletePost = async (id) => {
   try {
     let response = await instance.delete(`/post/deletePost/${id}`);
+    return response;
+  } catch (error) {
+    console.log(error);
+  }
+};
+export const likePost = async (userId, postId) => {
+  try {
+    let response = await instance.post(`/postLike/likeOnPost`, {
+      userId,
+      postId,
+    });
     return response;
   } catch (error) {
     console.log(error);

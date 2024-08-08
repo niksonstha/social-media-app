@@ -5,6 +5,7 @@ import bodyParser from "body-parser";
 import userRoutes from "./routes/user.routes.js";
 import postRoutes from "./routes/post.routes.js";
 import friendRequest from "./routes/friendRequest.routes.js";
+import postLikeRoutes from "./routes/like.routes.js";
 import cors from "cors";
 
 const app = express();
@@ -31,6 +32,7 @@ connection()
 app.use("/api/v1/user", userRoutes);
 app.use("/api/v1/post", postRoutes);
 app.use("/api/v1/friendRequest", friendRequest);
+app.use("/api/v1/postLike", postLikeRoutes);
 
 // ? server start
 app.listen(process.env.PORT, () => {

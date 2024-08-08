@@ -44,7 +44,6 @@ const LoginScreen = () => {
   const onLoginHandler = async (data) => {
     try {
       const response = await loginUser(data.email, data.password);
-      console.log(response);
       if (response.data.success) {
         toast({
           title: "Login successful.",
