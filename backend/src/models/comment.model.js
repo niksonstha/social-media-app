@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 
-const notificationSchema = new mongoose.Schema(
+const commentSchema = new mongoose.Schema(
   {
     userId: {
       type: mongoose.Schema.Types.ObjectId,
@@ -10,8 +10,13 @@ const notificationSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "Post",
     },
+    comment: [
+      {
+        type: String,
+      },
+    ],
   },
   { timestamps: true }
 );
 
-export const Notification = mongoose.model("Notification", notificationSchema);
+export const Comment = mongoose.model("Comment", commentSchema);
