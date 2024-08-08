@@ -53,3 +53,14 @@ export const declineFriendRequest = async (
     console.log(error);
   }
 };
+
+export const getFriendRequestNotification = async (receiverId) => {
+  try {
+    let res = await instance.get(
+      `/friendRequest/getFriendRequestNotification/${receiverId}`
+    );
+    return res;
+  } catch (error) {
+    console.log(error);
+  }
+};

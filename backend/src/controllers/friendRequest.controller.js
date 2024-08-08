@@ -154,3 +154,25 @@ export const declineFriendRequest = async (req, res) => {
     res.status(500).json({ error: "Internal server error." });
   }
 };
+
+export const getFriendRequestNotification = async (req, res) => {
+  try {
+    // Query to find friend requests with 'pending' status
+    const friendRequestNotifications = await FriendRequest.find({
+      receiverId: req.params.id,
+      status: "pending", // Filter by pending status
+    }).populate("senderId", "fullname profilePicture");
+
+    // Respond with the filtered notifications
+    res.status(200).json({
+      success: true,
+      data: friendRequestNotifications,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      success: false,
+      message: "Server error",
+    });
+  }
+};

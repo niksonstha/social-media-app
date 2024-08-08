@@ -9,18 +9,28 @@ import { getProfileDetail, getUsersSearch } from "../../api/user";
 import Cookies from "js-cookie";
 import { jwtDecode } from "jwt-decode"; // Remove the curly braces around jwtDecode
 import { debounce } from "lodash";
+import FriendNotification from "../Notification/FriendNotification";
+import { getFriendRequestNotification } from "../../api/friend";
+import { FaUserFriends } from "react-icons/fa";
 
 const Navbar = () => {
   const [profileToggle, setProfileToggle] = useState(false);
+  const [notificationToggle, setNotificationToggle] = useState(false);
   const [profilePicture, setProfilePicture] = useState("");
   const [userSearchResults, setUserSearchResults] = useState([]);
   const [userSearch, setUserSearch] = useState("");
+  const [friendRequests, setfriendRequests] = useState([]);
 
   const token = Cookies.get("uid");
   let profile_info = {};
   if (token) {
     profile_info = jwtDecode(token);
   }
+
+  const fetchRequestedFriend = async () => {
+    let data = await getFriendRequestNotification(profile_info._id);
+    setfriendRequests(data.data.data);
+  };
 
   const getProfileImage = async () => {
     let res = await getProfileDetail(profile_info._id);
@@ -53,6 +63,7 @@ const Navbar = () => {
 
   useEffect(() => {
     getProfileImage();
+    fetchRequestedFriend();
   }, []);
 
   return (
@@ -141,8 +152,60 @@ const Navbar = () => {
       </Box>
 
       {/* profile */}
-      <Box cursor={"pointer"} pos={"relative"}>
-        <Box onClick={() => setProfileToggle(!profileToggle)}>
+      <Box
+        cursor={"pointer"}
+        pos={"relative"}
+        display={"flex"}
+        alignItems={"center"}
+        gap={8}
+      >
+        {/* friend request notification */}
+        {friendRequests.length > 0 && (
+          <Box
+            fontSize={"2rem"}
+            rounded={"50%"}
+            padding={"6px"}
+            onClick={() => {
+              setNotificationToggle(!notificationToggle);
+              setProfileToggle(false);
+            }}
+            pos={"relative"}
+            _hover={{ bgColor: "rgba(255, 255, 255, 0.3)" }}
+          >
+            <FaUserFriends />
+            <Box
+              pos={"absolute"}
+              top={-2}
+              right={-1}
+              bgColor={"red"}
+              color={"white"}
+              fontSize={"0.7rem"}
+              fontWeight={"bold"}
+              padding={2}
+              rounded={"50%"}
+              textAlign={"center"}
+            >
+              <Text>{friendRequests.length}</Text>
+            </Box>
+          </Box>
+        )}
+        {notificationToggle && (
+          <Box pos={"absolute"} top={14} right={2} width={"max-content"}>
+            {friendRequests.length > 0 && (
+              <FriendNotification
+                friendRequests={friendRequests}
+                profileId={profile_info._id}
+                fetchRequestedFriend={fetchRequestedFriend}
+              />
+            )}
+          </Box>
+        )}
+        <Box
+          onClick={() => {
+            setProfileToggle(!profileToggle);
+            setNotificationToggle(false);
+          }}
+        >
           <Image
             src={profilePicture ? profilePicture : "/default_profile.jpg"}
             height={"50px"}
