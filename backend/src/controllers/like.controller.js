@@ -46,3 +46,19 @@ export const likeOnPost = async (req, res) => {
     return res.status(500).json({ message: "Internal server error" });
   }
 };
+
+export const getPostLike = async (req, res) => {
+  try {
+    // Find the like document for the post
+    const like = await Like.find();
+
+    if (like) {
+      return res.status(200).json({ data: like });
+    } else {
+      return res.status(200).json({ message: "nothing found" });
+    }
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+};

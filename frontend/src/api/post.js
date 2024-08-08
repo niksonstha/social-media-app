@@ -44,3 +44,11 @@ export const likePost = async (userId, postId) => {
     console.log(error);
   }
 };
+export const getPostLike = async () => {
+  try {
+    let response = await instance.get(`/postLike/getPostLike`);
+    return response;
+  } catch (error) {
+    console.log(error);
+  }
+};

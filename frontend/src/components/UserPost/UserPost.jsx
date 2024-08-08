@@ -14,7 +14,7 @@ import {
 } from "@chakra-ui/react";
 import { useContext, useEffect, useState, useRef } from "react";
 import { PostsContext } from "../../store/PostsContext";
-import { deletePost, getPost, likePost } from "../../api/post";
+import { deletePost, getPost, getPostLike, likePost } from "../../api/post";
 import { useLocation } from "react-router-dom";
 import { MdDelete } from "react-icons/md";
 import Cookies from "js-cookie";
@@ -27,7 +27,7 @@ const UserPost = () => {
   const [loading, setLoading] = useState(true);
   const [isOpen, setIsOpen] = useState(false);
   const [deletePostId, setDeletePostId] = useState(null);
-  const [like, setLike] = useState();
+  const [likes, setLikes] = useState([]);
   const cancelRef = useRef();
 
   const userId = useLocation();
@@ -77,14 +77,28 @@ const UserPost = () => {
   };
 
   const handleLike = async (postId) => {
-    let like = await likePost(profile_info._id, postId);
-    console.log(like.data.likeCount);
-    setLike(like.data.likeCount);
+    await likePost(profile_info._id, postId);
+    fetchLike();
+  };
+
+  const fetchLike = async () => {
+    let data = await getPostLike();
+    setLikes(data.data.data);
   };
 
   useEffect(() => {
     getUserPost();
+    fetchLike();
   }, [userId]);
+
+  // Map likes to posts
+  const postsWithLikes = posts?.map((post) => {
+    const postLikes = likes.find((like) => like.postId === post._id);
+    return {
+      ...post,
+      likeCount: postLikes ? postLikes.like : 0,
+    };
+  });
 
   return (
     <Box>
@@ -98,7 +112,7 @@ const UserPost = () => {
           <Spinner size="xl" />
         </Box>
       ) : (
-        posts?.map((post, index) => (
+        postsWithLikes?.map((post, index) => (
           <Box key={index} bgColor={"#FFEFEF"} rounded={5} padding={5} m={2}>
             <Box
               display={"flex"}
@@ -133,9 +147,7 @@ const UserPost = () => {
               <Text>{post?.caption}</Text>
               {post?.image && <Image src={post?.image} height={"100%"} />}
             </Box>
-            <Box>
-              <Text>{like}</Text>
-            </Box>
+
             <Box display={"flex"} mt={2} gap={2} alignContent={"center"}>
               <Box
                 bgColor={"#F0EBE3"}
@@ -154,7 +166,7 @@ const UserPost = () => {
                 onClick={() => handleLike(post._id)}
               >
                 <AiFillLike />
-                <Text>Like</Text>
+                <Text>Like {post.likeCount}</Text>
               </Box>
               <Box
                 bgColor={"#F0EBE3"}
