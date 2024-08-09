@@ -69,11 +69,19 @@ export const getRecommendedFeed = async (req, res) => {
         commentCount: postComments.length,
         comments: postCommentsData, // Include comments in the response
         feedScore,
+        createdAt: post.createdAt, // Include creation date for sorting
       };
     });
 
-    // Sort posts based on feedScore
-    recommendedFeed.sort((a, b) => b.feedScore - a.feedScore);
+    // Sort posts: recently uploaded first, then by feedScore
+    recommendedFeed.sort((a, b) => {
+      // First sort by creation date (most recent first)
+      if (a.createdAt > b.createdAt) return -1;
+      if (a.createdAt < b.createdAt) return 1;
+
+      // If creation dates are the same, sort by feedScore
+      return b.feedScore - a.feedScore;
+    });
 
     return res.json({
       success: true,
