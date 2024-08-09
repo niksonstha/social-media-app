@@ -27,7 +27,7 @@ export const getRecommendedFeed = async (req, res) => {
     const likes = await Like.find({ postId: { $in: posts.map((p) => p._id) } });
     const comments = await Comment.find({
       postId: { $in: posts.map((p) => p._id) },
-    });
+    }).populate("userId", "fullname profilePicture");
 
     const recommendedFeed = posts.map((post) => {
       // Affinity Score Calculation
@@ -51,10 +51,23 @@ export const getRecommendedFeed = async (req, res) => {
         postComments.length * commentWeight;
       const feedScore = affinityScore * decayFactor;
 
+      // Extract comments for this post
+      const postCommentsData = postComments.map((comment) => ({
+        _id: comment._id,
+        userId: {
+          _id: comment.userId._id,
+          fullname: comment.userId.fullname,
+          profilePicture: comment.userId.profilePicture,
+        },
+        comment: comment.comment,
+        createdAt: comment.createdAt,
+      }));
+
       return {
         ...post.toObject(),
         likeCount: postLikes ? postLikes.like : 0,
         commentCount: postComments.length,
+        comments: postCommentsData, // Include comments in the response
         feedScore,
       };
     });
