@@ -1,4 +1,3 @@
-// models/FriendRequest.js
 import mongoose from "mongoose";
 
 const friendRequestSchema = new mongoose.Schema(

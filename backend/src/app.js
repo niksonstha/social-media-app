@@ -7,6 +7,7 @@ import postRoutes from "./routes/post.routes.js";
 import friendRequest from "./routes/friendRequest.routes.js";
 import postLikeRoutes from "./routes/like.routes.js";
 import postCommentRoutes from "./routes/comment.routes.js";
+import feedRecommendationRoutes from "./routes/feed.routes.js";
 import cors from "cors";
 
 const app = express();
@@ -35,6 +36,7 @@ app.use("/api/v1/post", postRoutes);
 app.use("/api/v1/friendRequest", friendRequest);
 app.use("/api/v1/postLike", postLikeRoutes);
 app.use("/api/v1/comment", postCommentRoutes);
+app.use("/api/v1/recommendation", feedRecommendationRoutes);
 
 // ? server start
 app.listen(process.env.PORT, () => {
