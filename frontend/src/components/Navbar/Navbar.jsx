@@ -123,7 +123,7 @@ const Navbar = () => {
               <Box
                 key={index}
                 _hover={{
-                  bgColor: "rgba(255, 255, 255)",
+                  bgColor: "rgb(243, 208, 215,0.4)",
                 }}
                 padding={2}
                 rounded={"10px"}
