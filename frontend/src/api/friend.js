@@ -1,6 +1,7 @@
 import { instance } from "../axios/axios";
 
 export const sendFriendRequest = async (senderId, receiverId) => {
+  console.log(senderId, receiverId);
   try {
     let res = await instance.post("/friendRequest/send", {
       senderId,

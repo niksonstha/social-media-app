@@ -1,10 +1,12 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 import { Box, Spinner } from "@chakra-ui/react";
 import { useState, useEffect } from "react";
 import Cookies from "js-cookie";
 import { jwtDecode } from "jwt-decode";
 import PostCard from "../components/PostCard/PostCard";
-import { getRecommendedFeed } from "../api/recommendationsFeed";
+import {
+  getRecommendedFeed,
+  getRecommendedFriend,
+} from "../api/recommendationsFeed";
 import {
   createPostComment,
   deletePost,
@@ -12,12 +14,14 @@ import {
   getPostLike,
   likePost,
 } from "../api/post";
+import FriendSuggestion from "../components/FriendSuggestion/FriendSuggestion";
 
 const HomePage = () => {
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [likes, setLikes] = useState([]);
   const [commentOnPost, setCommentOnPost] = useState([]);
+  const [suggestedFriends, setSuggestedFriends] = useState([]);
   const token = Cookies.get("uid");
   let profile_info = {};
   if (token) {
@@ -34,6 +38,11 @@ const HomePage = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const fetchSuggestedFriend = async () => {
+    const response = await getRecommendedFriend(profile_info._id);
+    setSuggestedFriends(response.data.data);
   };
 
   const handleDeletePost = async (id) => {
@@ -64,36 +73,55 @@ const HomePage = () => {
   useEffect(() => {
     getFeed();
     fetchLikes();
+    fetchSuggestedFriend();
   }, []);
 
   return (
-    <Box width={"30%"} mt={"7rem"} mx={"auto"}>
-      {loading ? (
+    <>
+      <Box width={"40%"} mt={"7rem"} mx={"auto"}>
+        {loading ? (
+          <Box
+            display="flex"
+            justifyContent="center"
+            alignItems="center"
+            height="100vh"
+          >
+            <Spinner size="xl" />
+          </Box>
+        ) : (
+          posts.map((post, index) => (
+            <PostCard
+              key={index}
+              post={post}
+              onDelete={handleDeletePost}
+              onLike={handleLikePost}
+              onCommentSubmit={handleCommentSubmit}
+              comments={commentOnPost}
+              fetchComments={fetchPostComments}
+              likes={likes}
+              profileInfo={profile_info}
+              loading={loading}
+            />
+          ))
+        )}
+      </Box>
+      {suggestedFriends.length > 0 && (
         <Box
-          display="flex"
-          justifyContent="center"
-          alignItems="center"
-          height="100vh"
+          pos={"fixed"}
+          top={105}
+          left={5}
+          bgColor={"white"}
+          padding={3}
+          rounded={"10px"}
         >
-          <Spinner size="xl" />
-        </Box>
-      ) : (
-        posts.map((post, index) => (
-          <PostCard
-            key={index}
-            post={post}
-            onDelete={handleDeletePost}
-            onLike={handleLikePost}
-            onCommentSubmit={handleCommentSubmit}
-            comments={commentOnPost}
-            fetchComments={fetchPostComments}
-            likes={likes}
-            profileInfo={profile_info}
-            loading={loading}
+          <FriendSuggestion
+            userId={profile_info._id}
+            suggestedFriends={suggestedFriends}
+            fetchSuggestedFriend={fetchSuggestedFriend}
           />
-        ))
+        </Box>
       )}
-    </Box>
+    </>
   );
 };
 

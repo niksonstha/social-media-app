@@ -39,9 +39,6 @@ export const suggestFriends = async (req, res) => {
       $nor: [{ senderId: userId }, { receiverId: userId }],
     }).populate("senderId receiverId", "fullname profilePicture");
 
-    // Debugging: Log mutualFriends data
-    console.log("Mutual Friends:", mutualFriends);
-
     // Extract mutual friend IDs correctly
     const mutualFriendIds = mutualFriends.map((friend) => {
       return friend.senderId.toString() !== userId
@@ -49,9 +46,27 @@ export const suggestFriends = async (req, res) => {
         : friend.receiverId._id.toString();
     });
 
-    // Remove duplicates and friends that are already in the user's friend list
+    // Fetch friend requests that are already sent or received
+    const existingFriendRequests = await FriendRequest.find({
+      $or: [
+        { senderId: userId, receiverId: { $in: mutualFriendIds } },
+        { receiverId: userId, senderId: { $in: mutualFriendIds } },
+      ],
+      status: { $in: ["pending", "accepted"] },
+    });
+
+    const requestedFriendIds = existingFriendRequests.map((request) =>
+      request.senderId.toString() === userId
+        ? request.receiverId.toString()
+        : request.senderId.toString()
+    );
+
+    // Remove duplicates and friends that are already in the user's friend list or have a pending/accepted friend request
     const potentialFriendIds = [...new Set(mutualFriendIds)].filter(
-      (id) => !friendIds.includes(id) && mongoose.Types.ObjectId.isValid(id)
+      (id) =>
+        !friendIds.includes(id) &&
+        !requestedFriendIds.includes(id) &&
+        mongoose.Types.ObjectId.isValid(id)
     );
 
     if (potentialFriendIds.length === 0) {
@@ -79,10 +94,13 @@ export const suggestFriends = async (req, res) => {
 
     // Calculate scores for each potential friend
     const potentialFriends = potentialFriendIds.map((id) => {
+      // Correctly count mutual friends
       const mutualFriendCount = mutualFriends.filter(
         (friend) =>
-          friend.senderId.toString() === id ||
-          friend.receiverId.toString() === id
+          (friend.senderId._id.toString() === id &&
+            friend.receiverId._id.toString() !== userId) ||
+          (friend.receiverId._id.toString() === id &&
+            friend.senderId._id.toString() !== userId)
       ).length;
 
       const interactionCount = interactionCounts[id] || 0;
