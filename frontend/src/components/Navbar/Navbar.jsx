@@ -183,6 +183,11 @@ const Navbar = () => {
               padding={2}
               rounded={"50%"}
               textAlign={"center"}
+              height="20px"
+              width="20px"
+              display="flex"
+              alignItems="center"
+              justifyContent="center"
             >
               <Text>{friendRequests.length}</Text>
             </Box>
