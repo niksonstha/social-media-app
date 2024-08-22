@@ -73,20 +73,20 @@ export const getRecommendedFeed = async (req, res) => {
       };
     });
 
-    // Sort posts: recently uploaded first, then by feedScore
-    recommendedFeed.sort((a, b) => {
-      // First sort by creation date (most recent first)
-      if (a.createdAt > b.createdAt) return -1;
-      if (a.createdAt < b.createdAt) return 1;
+    // Separate the most recent 4 posts
+    const recentPosts = recommendedFeed.slice(0, 4);
+    const remainingPosts = recommendedFeed.slice(4);
 
-      // If creation dates are the same, sort by feedScore
-      return b.feedScore - a.feedScore;
-    });
+    // Sort remaining posts by feedScore
+    remainingPosts.sort((a, b) => b.feedScore - a.feedScore);
+
+    // Combine recent and sorted posts
+    const finalFeed = [...recentPosts, ...remainingPosts];
 
     return res.json({
       success: true,
       message: "Recommended feed fetched successfully",
-      data: recommendedFeed,
+      data: finalFeed,
     });
   } catch (error) {
     console.error("Failed to get recommended feed:", error);
