@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import Cookies from "js-cookie";
 import { jwtDecode } from "jwt-decode";
 import PostCard from "../components/PostCard/PostCard";
+import { useNavigate } from "react-router-dom";
 import {
   getRecommendedFeed,
   getRecommendedFriend,
@@ -23,6 +24,7 @@ const HomePage = () => {
   const [commentOnPost, setCommentOnPost] = useState([]);
   const [suggestedFriends, setSuggestedFriends] = useState([]);
   const token = Cookies.get("uid");
+  const navigate = useNavigate();
   let profile_info = {};
   if (token) {
     profile_info = jwtDecode(token);
@@ -32,6 +34,10 @@ const HomePage = () => {
     setLoading(true);
     try {
       const data = await getRecommendedFeed(profile_info._id); // Adjust the API call as needed
+
+      if (data.data.data.length === 0) {
+        navigate(`/profile/${profile_info._id}`);
+      }
       setPosts(data.data.data);
     } catch (error) {
       console.error("Failed to fetch recommended feed", error);

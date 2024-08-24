@@ -38,11 +38,7 @@ const ProfilePhoto = () => {
     >
       <Box display={"flex"} alignItems={"center"} gap={3}>
         <Image
-          src={
-            profileDetail
-              ? profileDetail?.profilePicture
-              : "/default_profile.jpg"
-          }
+          src={profileDetail?.profilePicture || "/default_profile.jpg"}
           height={"150px"}
           width={"150px"}
           rounded={"50%"}
