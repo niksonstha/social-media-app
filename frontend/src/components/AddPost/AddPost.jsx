@@ -15,7 +15,7 @@ const AddPost = () => {
 
   const getProfileImage = async () => {
     let res = await getProfileDetail(userId.pathname.split("/")[2]);
-    setprofilePicture(res.data.profilePicture);
+    setprofilePicture(res.data.user.profilePicture);
   };
 
   useEffect(() => {
@@ -31,11 +31,12 @@ const AddPost = () => {
       alignItems={"center"}
       gap={3}
       pos={"relative"}
+      zIndex={-1}
     >
       <Box>
         <NavLink to="/">
           <Image
-            src={profilePicture ? profilePicture : "/default_profile.jpg"}
+            src={profilePicture || "/default_profile.jpg"}
             height={"50px"}
             width={"50px"}
             rounded={"50%"}

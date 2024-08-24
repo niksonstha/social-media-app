@@ -34,7 +34,7 @@ const Navbar = () => {
 
   const getProfileImage = async () => {
     let res = await getProfileDetail(profile_info._id);
-    setProfilePicture(res.data.profilePicture);
+    setProfilePicture(res.data.user.profilePicture);
   };
 
   const fetchSearchUsers = async (searchTerm) => {

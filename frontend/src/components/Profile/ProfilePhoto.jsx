@@ -19,7 +19,6 @@ const ProfilePhoto = () => {
 
   const getProfileImage = async () => {
     let res = await getProfileDetail(userId.pathname.split("/")[2]);
-
     setprofileDetail(res.data);
   };
 
@@ -38,7 +37,7 @@ const ProfilePhoto = () => {
     >
       <Box display={"flex"} alignItems={"center"} gap={3}>
         <Image
-          src={profileDetail?.profilePicture || "/default_profile.jpg"}
+          src={profileDetail?.user.profilePicture || "/default_profile.jpg"}
           height={"150px"}
           width={"150px"}
           rounded={"50%"}
@@ -46,9 +45,9 @@ const ProfilePhoto = () => {
         />
         <Box>
           <Text fontSize={"x-large"} fontWeight={"bold"}>
-            {profileDetail?.fullname}
+            {profileDetail?.user.fullname}
           </Text>
-          <Text>1.2K friends</Text>
+          <Text>{profileDetail?.friendsCount} friends</Text>
         </Box>
       </Box>
       <Box>

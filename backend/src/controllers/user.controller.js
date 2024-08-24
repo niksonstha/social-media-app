@@ -1,4 +1,5 @@
 import { User } from "../models/user.model.js";
+import { FriendRequest } from "../models/friendRequest.model.js";
 import bcrypt from "bcryptjs";
 import { setUser } from "../services/authUser.js";
 import cloudnaryUpload from "../services/cloudnary.js";
@@ -110,11 +111,23 @@ export const getProfileDetail = async (req, res) => {
     const user = await User.findById(id);
     if (!user) {
       return res.status(404).json({ error: "User not found" });
-    } else {
-      res.json(user);
     }
+
+    // Count the number of friends
+    const friendsCount = await FriendRequest.countDocuments({
+      status: "accepted",
+      $or: [{ senderId: id }, { receiverId: id }],
+    });
+
+    res.json({
+      user,
+      friendsCount,
+    });
   } catch (error) {
-    console.log(error);
+    console.error(error);
+    res.status(500).json({
+      error: "An error occurred while retrieving the profile details.",
+    });
   }
 };
 
