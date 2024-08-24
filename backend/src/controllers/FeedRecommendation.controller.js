@@ -74,8 +74,8 @@ export const getRecommendedFeed = async (req, res) => {
     });
 
     // Separate the most recent 4 posts
-    const recentPosts = recommendedFeed.slice(0, 4);
-    const remainingPosts = recommendedFeed.slice(4);
+    const recentPosts = recommendedFeed.slice(0, 2);
+    const remainingPosts = recommendedFeed.slice(2);
 
     // Sort remaining posts by feedScore
     remainingPosts.sort((a, b) => b.feedScore - a.feedScore);
